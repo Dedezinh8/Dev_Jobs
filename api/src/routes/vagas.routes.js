@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const router = Router();
-
+const auth = require('../middleware/auth.middleware');
 const db = require('../database/db');
 
 router.get('/', (req, res) => {
@@ -14,8 +14,9 @@ router.get('/', (req, res) => {
   res.json(vagas);
 });
 
-router.post('/', (req, res) => {
-  const { titulo, empresa_id, tipo, tecnologias, salario, cep, cidade, estado, descricao } = req.body;
+router.post('/', auth, (req, res) => {
+  const { titulo, tipo, tecnologias, salario, cep, cidade, estado, descricao } = req.body;
+  const empresa_id = req.empresa.id;
 
   if (!titulo || !empresa_id || !tipo) {
     return res.status(400).json({ erro: 'Campos obrigatórios: titulo, empresa_id, tipo' });
@@ -45,7 +46,7 @@ router.get('/:id', (req, res) => {
   res.json(vaga);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', auth, (req, res) => {
   const { id } = req.params;
   const existente = db.prepare('SELECT id FROM vagas WHERE id = ?').get(id);
 
